@@ -157,20 +157,28 @@ public class CheckoutController {
     public void payButtonPressed(javafx.event.ActionEvent actionEvent) throws IOException {
 
 
-        FXMLLoader loader = new FXMLLoader((getClass().getResource("payment.fxml")));
+        if(!TFtotalAmount.getText().equals("")) {
 
-        Scene newScene = new Scene(loader.load());
+            FXMLLoader loader = new FXMLLoader((getClass().getResource("payment.fxml")));
 
-        paymentController controller = loader.getController();
+            Scene newScene = new Scene(loader.load());
 
-        controller.initialize(basketItems, mode);
-        controller.getPrice(calculatePrice(basketItems));
+            paymentController controller = loader.getController();
+
+            controller.initialize(basketItems, mode);
+            controller.getPrice(calculatePrice(basketItems));
 
 
-        Stage popUpStage = new Stage();
-        popUpStage.setScene(newScene);
-        popUpStage.initModality(Modality.APPLICATION_MODAL);
-        popUpStage.show();
+            Stage popUpStage = new Stage();
+            popUpStage.setScene(newScene);
+            popUpStage.initModality(Modality.APPLICATION_MODAL);
+            popUpStage.show();
+        }else{
+
+            Alert alert = new Alert(Alert.AlertType.WARNING, "You have not picked any of available items", ButtonType.OK);
+            alert.showAndWait();
+
+        }
     }
 
 

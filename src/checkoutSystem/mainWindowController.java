@@ -14,7 +14,7 @@ public class mainWindowController {
     public Button casualCheckoutButton;
     public Button onlyCashCheckoutButton;
     public Button only5ItemsButton;
-    public TextField TFAllPayments;
+
 
     public void loadCasualCheckout(ActionEvent actionEvent) throws IOException {
         FXMLLoader loader = new FXMLLoader((getClass().getResource("checkout.fxml")));
