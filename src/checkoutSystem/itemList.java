@@ -14,7 +14,7 @@ public class itemList extends ObservableListWrapper<Item> {
 
     public void addItem(String productCode,
                         String description,
-                        Integer price){
+                        String price){
 
         super.add(new Item(productCode, description, price));
 

@@ -5,11 +5,11 @@ import java.io.Serializable;
 public class Item implements Serializable {
     private String productCode;
     private String description;
-    private Integer itemPrice;
+    private String itemPrice;
 
     public Item(String productCode,
                 String description,
-                Integer itemPrice) {
+                String itemPrice) {
 
         this.productCode = productCode;
         this.description = description;
@@ -33,11 +33,11 @@ public class Item implements Serializable {
         this.description = description;
     }
 
-    public Integer getItemPrice() {
+    public String getItemPrice() {
         return itemPrice;
     }
 
-    public void setItemPrice(Integer itemPrice) {
+    public void setItemPrice(String itemPrice) {
         this.itemPrice = itemPrice;
     }
 

@@ -2,17 +2,23 @@ package checkoutSystem;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 
 public class CheckoutController {
 
 
-//private ObservableList<Item> listOfItems;
-
+    public TextField TFloyaltyCard;
+    public Button useLoyaltyCardButton;
     private itemList listOfItems;
     private itemList basketItems;
 
@@ -34,18 +40,41 @@ public class CheckoutController {
 
     public Button payButton;
 
+    private String mode;
+
+    private int counter = 0;
+
+    public void whatMode(String mode){
+        this.mode = mode;
+    }
+
+    private loyaltyCard lC;
 
     @FXML
     public void initialize() {
 
         listOfItems = new itemList();
-        listOfItems.addItem("0001", "Polena Rex - proszek", 25);
-        listOfItems.addItem("0002", "Polena Rex2 - proszek", 25);
-        listOfItems.addItem("0003", "Polena Rex3 - proszek", 25);
-        listOfItems.addItem("0004", "Polena Rex4 - proszek", 25);
+        listOfItems.addItem("001", "Toothpaste", "£7.00");
+        listOfItems.addItem("002", "Snickers", "£1.00");
+        listOfItems.addItem("003", "Pizza", "£3.50");
+        listOfItems.addItem("004", "Sauce", "£2.50");
+        listOfItems.addItem("005", "Smoked pork", "£3.50");
+        listOfItems.addItem("006", "Soda can", "£2.00");
+        listOfItems.addItem("007", "Plastic jug", "£8.00");
+        listOfItems.addItem("008", "Salmon fillets", "£4.75");
+        listOfItems.addItem("009", "Lemonade", "£1.60");
+        listOfItems.addItem("010", "Chocolate bag", "£1.00");
         itemList.setItems(listOfItems);
 
         basketItems = new itemList();
+
+        lC = new loyaltyCard();
+        lC.addElement(new loyalCustomer("1971", "Hedwig", "Kowalik"));
+        lC.addElement(new loyalCustomer("1850", "Mark", "Suski"));
+        lC.addElement(new loyalCustomer("1250", "Millie", "Me"));
+
+
+
 
     }
 
@@ -56,6 +85,7 @@ public class CheckoutController {
 
         String findItem = TFscanItems.getText();
         Item wantedItem;
+
 
         if (findItem.equals("")){
             Alert alert = new Alert(Alert.AlertType.WARNING, "Enter Product Code", ButtonType.OK);
@@ -68,7 +98,9 @@ public class CheckoutController {
                 Alert alert = new Alert(Alert.AlertType.WARNING, "Item Not Found", ButtonType.OK);
                 alert.showAndWait();
 
-            } else {
+
+            } else if (!mode.equals("5items")){
+
                 basketItems.addItem(wantedItem.getProductCode(), wantedItem.getDescription(),
                         wantedItem.getItemPrice());
                 basket.setItems(basketItems);
@@ -76,6 +108,27 @@ public class CheckoutController {
 
 
                 TFtotalAmount.setText(addCurrency(calculatePrice(basketItems)));
+
+            //If we selected max 5 items checkout
+            }else{
+
+                if(counter < 5){
+
+                    basketItems.addItem(wantedItem.getProductCode(), wantedItem.getDescription(),
+                            wantedItem.getItemPrice());
+                    basket.setItems(basketItems);
+                    TFscanItems.clear();
+
+                    TFtotalAmount.setText(addCurrency(calculatePrice(basketItems)));
+
+                    counter += 1;
+
+                }else{
+                    Alert alert = new Alert(Alert.AlertType.WARNING, "You cannot buy more than 5 items", ButtonType.OK);
+                    alert.showAndWait();
+                }
+
+
             }
         }
 
@@ -98,16 +151,38 @@ public class CheckoutController {
 
     }
 
+    //Implementation of loading other stages and scenes was taken from:
+    //Ilias Tachmazidis (2021) https://huddersfield.brightspace.com/d2l/le/content/133711/viewContent/962151/View
+
+    public void payButtonPressed(javafx.event.ActionEvent actionEvent) throws IOException {
+
+
+        FXMLLoader loader = new FXMLLoader((getClass().getResource("payment.fxml")));
+
+        Scene newScene = new Scene(loader.load());
+
+        paymentController controller = loader.getController();
+
+        controller.initialize(basketItems, mode);
+        controller.getPrice(calculatePrice(basketItems));
+
+
+        Stage popUpStage = new Stage();
+        popUpStage.setScene(newScene);
+        popUpStage.initModality(Modality.APPLICATION_MODAL);
+        popUpStage.show();
+    }
+
 
 
     //calculates total price of items
-    public int calculatePrice(itemList list){
+    public Double calculatePrice(itemList list){
         
-        int sum = 0;
+        Double sum = 0.0;
 
         for (Item i : list) {
-
-            sum += i.getItemPrice();
+            //substring(1) cuts off the first letter
+            sum += Double.parseDouble(i.getItemPrice().substring(1));
             
         }
 
@@ -115,9 +190,9 @@ public class CheckoutController {
         
     }
 
-
-    //https://stackoverflow.com/questions/2379221/java-currency-number-format
-    public String addCurrency(int money){
+    //Implementation of adding currency to a String was taken from:
+    //Subhashi (February 2020) https://stackoverflow.com/questions/2379221/java-currency-number-format
+    public String addCurrency(Double money){
 
         NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.UK);
 
@@ -126,5 +201,21 @@ public class CheckoutController {
     }
 
 
+    public void useLoyaltyCard(ActionEvent actionEvent) {
 
+        String searchingID = TFloyaltyCard.getText();
+        Double calculating;
+
+
+
+        if(lC.findCustomer(searchingID)){
+            calculating = Double.parseDouble(TFtotalAmount.getText().substring(1)) * 0.98;
+            TFtotalAmount.setText(addCurrency(calculating));
+            useLoyaltyCardButton.setDisable(true);
+        }else{
+            Alert alert = new Alert(Alert.AlertType.WARNING, "You are not the part of our community!", ButtonType.OK);
+            alert.showAndWait();
+        }
+
+    }
 }
