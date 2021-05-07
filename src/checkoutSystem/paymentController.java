@@ -130,7 +130,7 @@ public class paymentController {
 
 
         }else{
-            difference = Double.parseDouble(providedMoney) - price;
+            difference = (Double.parseDouble(providedMoney) - price);
             TFcashChange.setText(String.valueOf(difference));
         }
 
